@@ -19,4 +19,10 @@
     <ProjectReference Include="..\BusinessRegister.Dal\BusinessRegister.Dal.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

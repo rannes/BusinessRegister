@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BusinessRegister.Dal.Models;
+using BusinessRegister.Dal.Repositories;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,13 +21,15 @@ namespace BusinessRegister.Api.Services
         private readonly ILogger<RegistryLoaderService> _logger;
         private readonly ConnectionString _connectionString;
         private readonly TimeSpan _syncDelay = new TimeSpan(1, 0, 0); //1 Hour
+        private readonly IDatabaseSetupRepository _databaseSetupRepository;
 
         /// <inheritdoc />
-        public RegistryLoaderService(ILogger<RegistryLoaderService> logger,
-            IOptions<ConnectionString> databaseConnectionStrings)
+        public RegistryLoaderService(IOptions<ConnectionString> databaseConnectionStrings, 
+            ILogger<RegistryLoaderService> logger)
         {
             _logger = logger;
             _connectionString = databaseConnectionStrings?.Value;
+            _databaseSetupRepository = new DatabaseSetupRepository(databaseConnectionStrings?.Value, logger);
         }
 
         /// <inheritdoc />

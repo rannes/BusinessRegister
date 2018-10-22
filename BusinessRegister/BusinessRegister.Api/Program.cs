@@ -18,7 +18,8 @@ namespace BusinessRegister.Api
         {
             try
             {
-                var pathToContentRoot = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                var pathToContentRoot = Directory.GetCurrentDirectory();
+                //var pathToContentRoot = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(pathToContentRoot)
@@ -32,7 +33,7 @@ namespace BusinessRegister.Api
                     .Enrich.FromLogContext()
                     .CreateLogger();
 
-                BuildWebHost(args, configuration, pathToContentRoot);
+                BuildWebHost(args, configuration, pathToContentRoot).Run();
             }
             catch (Exception ex)
             {
