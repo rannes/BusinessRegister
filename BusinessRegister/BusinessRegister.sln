@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessRegister.Api", "BusinessRegister\BusinessRegister.Api.csproj", "{356F52C5-4C73-4DAD-AC54-50F03C0E29DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessRegister.Api", "BusinessRegister.Api\BusinessRegister.Api.csproj", "{356F52C5-4C73-4DAD-AC54-50F03C0E29DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessRegister.Dal", "BusinessRegister.Dal\BusinessRegister.Dal.csproj", "{A1826B27-5227-4195-B64E-0C6E750C4058}"
 EndProject
