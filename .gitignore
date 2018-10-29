@@ -328,3 +328,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/BusinessRegister/src/BusinessRegister.Api/BusinessRegister.Api.xml
+/BusinessRegister/src/BusinessRegister.Dal/BusinessRegister.Dal.xml

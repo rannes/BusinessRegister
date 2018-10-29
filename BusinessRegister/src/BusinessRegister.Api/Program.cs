@@ -14,12 +14,15 @@ namespace BusinessRegister.Api
     /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Entry point of the whole program
+        /// </summary>
+        /// <param name="args">Arguments to run the program</param>
         public static void Main(string[] args)
         {
             try
             {
-                var pathToContentRoot = Directory.GetCurrentDirectory();
-                //var pathToContentRoot = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                var pathToContentRoot = AppContext.BaseDirectory;
 
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(pathToContentRoot)
