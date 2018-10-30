@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BusinessRegister.Dal.Models;
 using BusinessRegister.Dal.Repositories;
+using BusinessRegister.Dal.Repositories.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,7 +45,7 @@ namespace BusinessRegister.Api.Services
             {
                 try
                 {
-                    await _databaseSetupRepository.CheckIfDatabaseExists();
+                    await _databaseSetupRepository.TestDatabaseConnection();
                 }
                 catch (Exception e)
                 {

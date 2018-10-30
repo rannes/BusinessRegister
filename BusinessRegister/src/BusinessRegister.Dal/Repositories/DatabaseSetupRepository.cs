@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using BusinessRegister.Dal.Exceptions;
 using BusinessRegister.Dal.Models;
+using BusinessRegister.Dal.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BusinessRegister.Dal.Repositories
@@ -15,27 +17,25 @@ namespace BusinessRegister.Dal.Repositories
         {
         }
 
-        public async Task CheckIfDatabaseExists()
+        /// <inheritdoc />
+        public async Task TestDatabaseConnection()
         {
-            const string query = @"";
-
             try
             {
                 using (var connection = new SqlConnection(BusinessRegistryConnectionString))
-                using (var command = new SqlCommand())
                 {
                     await connection.OpenAsync();
-                    command.Connection = connection;
-
-                    command.CommandText = query;
-
-                    await command.ExecuteNonQueryAsync();
                 }
 
             }
             catch (Exception e)
             {
                 Logger.LogError(e.ToString());
+                if (e.Message.Contains("Cannot open database"))
+                    throw new BrInvalidOperationException("Database connection could not be opened. Might be invalid Database name", 
+                        ResultCode.DatabaseConnectionFailedToOpen, e);
+                if (e.Message.Contains("A connection was successfully established with the server, but then an error occurred during the login process."))
+                    throw new BrInvalidOperationException("Username or Password is invalid.", ResultCode.UsernameOrPasswordIsInvalid, e);
                 throw;
             }
         }

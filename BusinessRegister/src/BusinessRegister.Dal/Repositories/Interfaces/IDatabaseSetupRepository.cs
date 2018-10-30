@@ -1,12 +1,16 @@
 ﻿using System.Threading.Tasks;
 
-namespace BusinessRegister.Dal.Repositories
+namespace BusinessRegister.Dal.Repositories.Interfaces
 {
     /// <summary>
     /// Database setup repository
     /// </summary>
     public interface IDatabaseSetupRepository
     {
-        Task CheckIfDatabaseExists();
+        /// <summary>
+        /// Test if database connection can be established
+        /// </summary>
+        /// <returns></returns>
+        Task TestDatabaseConnection();
     }
 }
