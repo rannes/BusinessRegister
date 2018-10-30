@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using BusinessRegister.Api.Filters;
+using BusinessRegister.Api.Services;
 using BusinessRegister.Dal.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +65,8 @@ namespace BusinessRegister.Api
                 c.IncludeXmlComments(Path.Combine(basePath, "BusinessRegister.Dal.xml"));
                 c.DescribeAllEnumsAsStrings();
             });
+
+            services.AddHostedService<RegistryDataUpdaterService>();
         }
 
         /// <summary>

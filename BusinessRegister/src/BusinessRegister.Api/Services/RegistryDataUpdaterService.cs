@@ -16,16 +16,16 @@ namespace BusinessRegister.Api.Services
     /// http://avaandmed.rik.ee/andmed/ARIREGISTER/
     /// </remarks>
     /// </summary>
-    public class RegistryLoaderService : BackgroundService
+    public class RegistryDataUpdaterService : BackgroundService
     {
-        private readonly ILogger<RegistryLoaderService> _logger;
+        private readonly ILogger<RegistryDataUpdaterService> _logger;
         private readonly ConnectionString _connectionString;
         private readonly TimeSpan _syncDelay = new TimeSpan(1, 0, 0); //1 Hour
         private readonly IDatabaseSetupRepository _databaseSetupRepository;
 
         /// <inheritdoc />
-        public RegistryLoaderService(IOptions<ConnectionString> databaseConnectionStrings, 
-            ILogger<RegistryLoaderService> logger)
+        public RegistryDataUpdaterService(IOptions<ConnectionString> databaseConnectionStrings, 
+            ILogger<RegistryDataUpdaterService> logger)
         {
             _logger = logger;
             _connectionString = databaseConnectionStrings?.Value;
@@ -44,7 +44,7 @@ namespace BusinessRegister.Api.Services
             {
                 try
                 {
-
+                    await _databaseSetupRepository.CheckIfDatabaseExists();
                 }
                 catch (Exception e)
                 {
