@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 /BusinessRegister/src/BusinessRegister.Api/BusinessRegister.Api.xml
 /BusinessRegister/src/BusinessRegister.Dal/BusinessRegister.Dal.xml
+/BusinessRegister/src/BusinessRegister.Api/Logs

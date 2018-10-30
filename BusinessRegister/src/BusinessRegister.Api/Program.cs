@@ -58,6 +58,7 @@ namespace BusinessRegister.Api
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseConfiguration(conf)
+                .UseSerilog()
                 .Build();
     }
 }

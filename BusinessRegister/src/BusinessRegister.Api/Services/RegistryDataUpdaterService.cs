@@ -20,7 +20,6 @@ namespace BusinessRegister.Api.Services
     public class RegistryDataUpdaterService : BackgroundService
     {
         private readonly ILogger<RegistryDataUpdaterService> _logger;
-        private readonly ConnectionString _connectionString;
         private readonly TimeSpan _syncDelay = new TimeSpan(1, 0, 0); //1 Hour
         private readonly IDatabaseSetupRepository _databaseSetupRepository;
 
@@ -29,7 +28,6 @@ namespace BusinessRegister.Api.Services
             ILogger<RegistryDataUpdaterService> logger)
         {
             _logger = logger;
-            _connectionString = databaseConnectionStrings?.Value;
             _databaseSetupRepository = new DatabaseSetupRepository(databaseConnectionStrings?.Value, logger);
         }
 
@@ -41,11 +39,12 @@ namespace BusinessRegister.Api.Services
             stoppingToken.Register(() =>
                 _logger.LogDebug("Registry loader caneellation token set. Stopping service."));
 
+            await SetupDatabase(stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    await _databaseSetupRepository.TestDatabaseConnection();
                 }
                 catch (Exception e)
                 {
@@ -55,6 +54,35 @@ namespace BusinessRegister.Api.Services
             }
 
             _logger.LogDebug("Registry loader background task is stopping.");
+        }
+
+        /// <summary>
+        /// Try to setup the database if it fails 5 times then close the program.
+        /// </summary>
+        /// <returns></returns>
+        private async Task SetupDatabase(CancellationToken stoppingToken)
+        {
+            var retryCount = 0;
+            var databaseSetUp = false;
+
+            while (!databaseSetUp)
+            {
+                try
+                {
+                    retryCount++;
+                    await _databaseSetupRepository.TestDatabaseConnection();
+
+
+                    databaseSetUp = true;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.ToString());
+                    if (retryCount >= 5)
+                        Environment.Exit(-1);
+                    await Task.Delay(new TimeSpan(0, 0, 1), stoppingToken);
+                }
+            }
         }
     }
 }
