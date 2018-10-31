@@ -10,7 +10,11 @@ namespace BusinessRegister.Dal.Repositories.Interfaces
         /// <summary>
         /// Test if database connection can be established
         /// </summary>
-        /// <returns></returns>
         Task TestDatabaseConnection();
+
+        /// <summary>
+        /// Complete Database migration. Updates database to laters version
+        /// </summary>
+        Task CompleteDatabaseMigration();
     }
 }

@@ -71,8 +71,7 @@ namespace BusinessRegister.Api.Services
                 {
                     retryCount++;
                     await _databaseSetupRepository.TestDatabaseConnection();
-
-
+                    await _databaseSetupRepository.CompleteDatabaseMigration();
                     databaseSetUp = true;
                 }
                 catch (Exception e)

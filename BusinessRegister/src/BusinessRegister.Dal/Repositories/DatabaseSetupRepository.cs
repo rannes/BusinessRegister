@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using BusinessRegister.Dal.Exceptions;
 using BusinessRegister.Dal.Models;
@@ -22,11 +21,7 @@ namespace BusinessRegister.Dal.Repositories
         {
             try
             {
-                using (var connection = new SqlConnection(BusinessRegistryConnectionString))
-                {
-                    await connection.OpenAsync();
-                }
-
+                await RepositorySqlHelper.ExcecuteNonQueryAsync("");
             }
             catch (Exception e)
             {
@@ -39,5 +34,48 @@ namespace BusinessRegister.Dal.Repositories
                 throw;
             }
         }
+
+        /// <inheritdoc />
+        public async Task CompleteDatabaseMigration()
+        {
+            var dbVersion = await GetCurrentDatabaseVersion();
+
+            if (dbVersion == 0)
+                await SetDatabaseInitalSetup();
+            if (dbVersion <= 1)
+                await SetDatabaseVersion1();
+        }
+
+        /// <summary>
+        /// Get current database version
+        /// </summary>
+        /// <returns>Current database version</returns>
+        private async Task<int> GetCurrentDatabaseVersion()
+        {
+            const string query = @"IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
+                                               WHERE TABLE_NAME = N'BusinessRegister.DBVer')
+                                    BEGIN
+	                                    SELECT Version FROM BusinessRegister.DBVer
+                                    END
+                                    ELSE
+                                    BEGIN
+	                                    SELECT 0
+                                    END;";
+
+            return (int) await RepositorySqlHelper.ExcecuteNonScalarAsync(query);
+        }
+
+        private async Task SetDatabaseInitalSetup()
+        {
+            const string query = "";
+            await RepositorySqlHelper.ExcecuteNonQueryAsync(query);
+        }
+
+        private async Task SetDatabaseVersion1()
+        {
+            const string query = "";
+            await RepositorySqlHelper.ExcecuteNonQueryAsync(query);
+        }
+
     }
 }
