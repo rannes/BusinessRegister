@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using System.Transactions;
 using BusinessRegister.Dal.Exceptions;
 using BusinessRegister.Dal.Models;
+using BusinessRegister.Dal.Models.Consts;
 using BusinessRegister.Dal.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +25,10 @@ namespace BusinessRegister.Dal.Repositories
         {
             try
             {
-                await RepositorySqlHelper.ExcecuteNonQueryAsync("");
+                using (var connection = new SqlConnection(BusinessRegistryConnectionString))
+                {
+                    await connection.OpenAsync();
+                }
             }
             catch (Exception e)
             {
@@ -42,8 +49,8 @@ namespace BusinessRegister.Dal.Repositories
 
             if (dbVersion == 0)
                 await SetDatabaseInitalSetup();
-            if (dbVersion <= 1)
-                await SetDatabaseVersion1();
+            //if (dbVersion <= 1)
+            //    await SetDatabaseVersion1();
         }
 
         /// <summary>
@@ -52,23 +59,55 @@ namespace BusinessRegister.Dal.Repositories
         /// <returns>Current database version</returns>
         private async Task<int> GetCurrentDatabaseVersion()
         {
-            const string query = @"IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
-                                               WHERE TABLE_NAME = N'BusinessRegister.DBVer')
-                                    BEGIN
-	                                    SELECT Version FROM BusinessRegister.DBVer
-                                    END
-                                    ELSE
-                                    BEGIN
-	                                    SELECT 0
-                                    END;";
+            var query = $@"IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
+                                       WHERE TABLE_NAME = N'{TableName.DatabaseVersion}')
+                            BEGIN
+	                            SELECT VersionNo FROM {TableName.DatabaseVersion}
+                            END
+                            ELSE
+                            BEGIN
+	                            SELECT 0
+                            END;";
 
             return (int) await RepositorySqlHelper.ExcecuteNonScalarAsync(query);
         }
 
         private async Task SetDatabaseInitalSetup()
         {
-            const string query = "";
-            await RepositorySqlHelper.ExcecuteNonQueryAsync(query);
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var createTable = $@"CREATE TABLE {TableName.DatabaseVersion}(
+	                                    [VersionNo] [smallint] NOT NULL
+                                    ) ON [PRIMARY];";
+
+                await RepositorySqlHelper.ExcecuteNonQueryAsync(createTable);
+
+                var createTrigger = $@"CREATE TRIGGER [dbo].[BusinessRegister.DBVer_InsteadOfInsUpDel] 
+                                        ON [dbo].{TableName.DatabaseVersion} INSTEAD OF INSERT, UPDATE, DELETE AS 
+                                BEGIN
+	                                SET NOCOUNT ON;
+	                                IF EXISTS (SELECT 1 FROM inserted) --INSERT OR UPDATE
+	                                BEGIN
+		                                IF NOT EXISTS (SELECT 1 FROM {TableName.DatabaseVersion})
+		                                BEGIN
+			                                INSERT INTO {TableName.DatabaseVersion} (VersionNo)
+			                                VALUES ((SELECT MAX(VersionNo) FROM inserted))
+		                                END ELSE 
+		                                IF NOT EXISTS (SELECT 1 FROM {TableName.DatabaseVersion} WHERE VersionNo > (SELECT MAX(VersionNo) FROM inserted))
+		                                BEGIN
+			                                UPDATE 
+				                                {TableName.DatabaseVersion} 
+			                                SET 
+				                                VersionNo = (SELECT MAX(VersionNo) FROM inserted)
+		                                END			
+	                                END;
+	                                --IGNORE IF DELETE
+                                END;";
+
+                await RepositorySqlHelper.ExcecuteNonQueryAsync(createTrigger);
+
+                transaction.Complete();
+            }
         }
 
         private async Task SetDatabaseVersion1()

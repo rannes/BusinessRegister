@@ -25,8 +25,7 @@ namespace BusinessRegister.Dal.Repositories.Helpers
         /// Execute Query without any result. Throw on exception
         /// </summary>
         /// <param name="query">Sql query to be executed</param>
-        /// <param name="transaction">Optional. Is null by default</param>
-        public async Task ExcecuteNonQueryAsync(string query, SqlTransaction transaction = null)
+        public async Task ExcecuteNonQueryAsync(string query)
         {
             try
             {
@@ -35,9 +34,6 @@ namespace BusinessRegister.Dal.Repositories.Helpers
                 {
                     if (connection.State != ConnectionState.Open)
                         await connection.OpenAsync();
-
-                    if (transaction != null)
-                        command.Transaction = transaction;
 
                     await command.ExecuteNonQueryAsync();
                 }
@@ -53,9 +49,8 @@ namespace BusinessRegister.Dal.Repositories.Helpers
         /// Execute Query and returns first column first row value. Throw on exception
         /// </summary>
         /// <param name="query">Sql query to be executed</param>
-        /// <param name="transaction">Optional. Is null by default</param>
         /// <returns>Object from First column first row</returns>
-        public async Task<object> ExcecuteNonScalarAsync(string query, SqlTransaction transaction = null)
+        public async Task<object> ExcecuteNonScalarAsync(string query)
         {
             try
             {
@@ -64,9 +59,6 @@ namespace BusinessRegister.Dal.Repositories.Helpers
                 {
                     if (connection.State != ConnectionState.Open)
                         await connection.OpenAsync();
-
-                    if (transaction != null)
-                        command.Transaction = transaction;
 
                     return await command.ExecuteScalarAsync();
                 }
