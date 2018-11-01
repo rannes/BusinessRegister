@@ -15,6 +15,6 @@ namespace BusinessRegister.Dal.Repositories.Interfaces
         /// <summary>
         /// Complete Database migration. Updates database to laters version
         /// </summary>
-        Task CompleteDatabaseMigration();
+        Task DatabaseMigration();
     }
 }
