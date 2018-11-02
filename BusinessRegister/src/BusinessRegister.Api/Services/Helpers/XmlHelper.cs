@@ -15,13 +15,13 @@ namespace BusinessRegister.Api.Services.Helpers
         /// </summary>
         /// <param name="pathToXml">Location of XML file to deserialize</param>
         /// <returns>Deserialized list of <see cref="Company"/> objects</returns>
-        public static IList<Company> DeserializeXml(string pathToXml)
+        public static IList<Company> DeserializeXmlFromFile(string pathToXml)
         {
             var serializer = new XmlSerializer(typeof(List<Company>), new XmlRootAttribute("ettevotjad"));
 
             using (var reader = new StreamReader(pathToXml))
             {
-                return (IList<Company>) serializer.Deserialize(reader);
+                return (IList<Company>)serializer.Deserialize(reader);
             }
         }
     }

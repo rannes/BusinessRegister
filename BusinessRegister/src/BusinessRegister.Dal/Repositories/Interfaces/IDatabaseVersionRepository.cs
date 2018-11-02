@@ -17,6 +17,6 @@ namespace BusinessRegister.Dal.Repositories.Interfaces
         /// Get current database version
         /// </summary>
         /// <returns>Current database version. -1 if not found.</returns>
-        Task<int> GetCurrentDatabaseVersion();
+        Task<short> GetCurrentDatabaseVersion();
     }
 }

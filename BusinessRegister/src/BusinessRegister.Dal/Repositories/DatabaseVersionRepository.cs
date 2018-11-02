@@ -34,10 +34,10 @@ namespace BusinessRegister.Dal.Repositories
 
 
         /// <inheritdoc />
-        public async Task<int> GetCurrentDatabaseVersion()
+        public async Task<short> GetCurrentDatabaseVersion()
         {
             var query = $@"IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
-                                       WHERE TABLE_NAME = N'{TableName.DatabaseVersion}')
+                                       WHERE TABLE_NAME = N'{TableName.DatabaseVersion.Replace("[", "").Replace("]", "")}')
                             BEGIN
 	                            SELECT VersionNo FROM {TableName.DatabaseVersion}
                             END
@@ -46,7 +46,7 @@ namespace BusinessRegister.Dal.Repositories
 	                            SELECT -1
                             END;";
 
-            return (int)await RepositorySqlHelper.ExcecuteNonScalarAsync(query);
+            return (short) await RepositorySqlHelper.ExcecuteNonScalarAsync(query);
         }
     }
 }

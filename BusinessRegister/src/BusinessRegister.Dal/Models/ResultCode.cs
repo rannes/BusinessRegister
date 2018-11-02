@@ -23,6 +23,26 @@
         /// <summary>
         /// Username or password is invalid.
         /// </summary>
-        UsernameOrPasswordIsInvalid
+        UsernameOrPasswordIsInvalid,
+
+        /// <summary>
+        /// Zip file location is invalid.
+        /// </summary>
+        ZipFileLocationInvalid,
+
+        /// <summary>
+        /// File extension must be .zip
+        /// </summary>
+        FileExtensionMustBeZip,
+
+        /// <summary>
+        /// Zip file does not contain any files
+        /// </summary>
+        ZipFileDoesNotCotainAnyFiles,
+
+        /// <summary>
+        /// Zip file did not contain correct / expected file.
+        /// </summary>
+        ZipFileDidNotContainCorrectFile
     }
 }

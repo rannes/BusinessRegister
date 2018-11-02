@@ -51,8 +51,8 @@ namespace BusinessRegister.Dal.Repositories
 
             if (dbVersion < 0)
                 await DatabaseInitialSetup();
-            if (dbVersion < 1)
-                await UpgradeToVersion1();
+            //if (dbVersion < 1)
+            //    await UpgradeToVersion1();
         }
 
         /// <summary>
