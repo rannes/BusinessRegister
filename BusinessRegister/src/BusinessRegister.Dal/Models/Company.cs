@@ -33,6 +33,9 @@ namespace BusinessRegister.Dal.Models
         [XmlElement("ettevotja_staatus")]
         public CompanyStatus Status { get; set; }
 
+        /// <summary>
+        /// Company address node
+        /// </summary>
         [XmlElement("ettevotja_aadress")]
         public CompanyAddress CompanyAddress { get; set; }
 

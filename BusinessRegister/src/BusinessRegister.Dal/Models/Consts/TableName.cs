@@ -9,5 +9,10 @@
         /// Database version names
         /// </summary>
         public const string DatabaseVersion = "[BusinessRegister.DBVer]";
+
+        /// <summary>
+        /// Company table 
+        /// </summary>
+        public const string Company = "[BusinessRegister.Company]";
     }
 }

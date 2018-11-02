@@ -50,17 +50,29 @@ namespace BusinessRegister.Api.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.LogInformation("RegistryDataUpdateService Started");
+
                 try
                 {
                     if (FileHasBeenUpdated(lastModifiedTime, out lastModifiedTime))
                     {
                         zipFileLocation = FileHelper.DownloadFile(FileDownloadLocation, FileName);
+                        _logger.LogInformation($"RegistryDataUpdateService Zip file has been downloaded to: {zipFileLocation}");
+
                         extractedFileLocation = FileHelper.ExtractFile(zipFileLocation);
+                        _logger.LogInformation($"RegistryDataUpdateService Zip file has been extracted. Output file is: {extractedFileLocation}");
+
                         var companiesData = XmlHelper.DeserializeXmlFromFile(extractedFileLocation);
+                        _logger.LogInformation($"RegistryDataUpdateService - Deserialized companies count: {companiesData.Count.ToString()}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation("RegistryDataUpdateService no new data found");
                     }
                 }
                 catch (Exception e)
                 {
+                    _logger.LogInformation("RegistryDataUpdateService Ran into error");
                     _logger.LogError(e.ToString());
                 }
                 finally
@@ -71,6 +83,7 @@ namespace BusinessRegister.Api.Services
                         File.Delete(extractedFileLocation);
                 }
 
+                _logger.LogInformation($"RegistryDataUpdateService Ended. Sleeping for: {_syncDelay.Hours} Hours, {_syncDelay.Minutes} Minutes, {_syncDelay.Seconds}");
                 await Task.Delay(_syncDelay, stoppingToken);
             }
 

@@ -51,8 +51,8 @@ namespace BusinessRegister.Dal.Repositories
 
             if (dbVersion < 0)
                 await DatabaseInitialSetup();
-            //if (dbVersion < 1)
-            //    await UpgradeToVersion1();
+            if (dbVersion < 1)
+                await UpgradeToVersion1();
         }
 
         /// <summary>
@@ -106,18 +106,57 @@ END;";
             }
         }
 
+        /// <summary>
+        /// Upgrade database to Version 1.
+        /// Creates Company table based of <see cref="Company"/>.
+        /// Adds also 3 indexes to Company table
+        /// </summary>
+        /// <returns></returns>
         private async Task UpgradeToVersion1()
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                const string query = "";
-                await RepositorySqlHelper.ExcecuteNonQueryAsync(query);
+                var companyTableCration = $@"CREATE TABLE {TableName.Company}
+                                            (
+	                                            [Name] [nvarchar](400) NOT NULL,
+	                                            [BusinessCode] [varchar](50) NOT NULL,
+	                                            [VatNo] [varchar](200) NULL,
+	                                            [Status] [varchar](20) NOT NULL,
+	                                            [FullAddress] [nvarchar] (1024) NOT NULL,
+	                                            [Url] [varchar] (200) NOT NULL,
+	                                            CONSTRAINT [IX_BusinessRegister.Company_BusinessCode] PRIMARY KEY CLUSTERED 
+	                                            (
+		                                            [BusinessCode] ASC
+	                                            ),
+	                                            INDEX [IX_BusinessRegister.Company_Name] NONCLUSTERED
+	                                            (
+		                                            [Name] ASC
+	                                            ),
+	                                            INDEX [IX_BusinessRegister.Company_VatNo] NONCLUSTERED
+	                                            (
+		                                            [VatNo] ASC
+	                                            )
+                                            );";
+                await RepositorySqlHelper.ExcecuteNonQueryAsync(companyTableCration);
+                
+                var tableTypeCompany = $@"CREATE Type {TableType.Company} AS TABLE
+                                            (
+	                                            [Name] [nvarchar](400) NOT NULL,
+	                                            [BusinessCode] [varchar](50) NOT NULL,
+	                                            [VatNo] [varchar](200) NULL,
+	                                            [Status] [varchar](20) NOT NULL,
+	                                            [FullAddress] [nvarchar] (1024) NOT NULL,
+	                                            [Url] [varchar] (200) NOT NULL,
+	                                            INDEX [IX_BusinessCode] NONCLUSTERED
+	                                            (
+		                                            [BusinessCode] ASC
+	                                            )
+                                            );";
+                await RepositorySqlHelper.ExcecuteNonQueryAsync(tableTypeCompany);
 
-                //await _databaseVersionRepository.UpdateDatabaseVersionNumber(1);
+                await _databaseVersionRepository.UpdateDatabaseVersionNumber(1);
                 transaction.Complete();
             }
         }
-
-
     }
 }
