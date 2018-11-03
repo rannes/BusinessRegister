@@ -14,6 +14,6 @@ namespace BusinessRegister.Dal.Repositories.Interfaces
         /// </summary>
         /// <param name="comapnies"></param>
         /// <returns></returns>
-        Task Set(IEnumerable<Company> comapnies);
+        Task SetBulk(IEnumerable<Company> comapnies);
     }
 }

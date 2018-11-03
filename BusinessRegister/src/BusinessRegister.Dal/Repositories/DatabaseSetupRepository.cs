@@ -35,6 +35,7 @@ namespace BusinessRegister.Dal.Repositories
             catch (Exception e)
             {
                 Logger.LogError(e.ToString());
+                Logger.LogError("Make sure that the database exists and Username/Password are correct.");
                 if (e.Message.Contains("Cannot open database"))
                     throw new BrInvalidOperationException("Database connection could not be opened. Might be invalid Database name", 
                         ResultCode.DatabaseConnectionFailedToOpen, e);
@@ -77,7 +78,7 @@ namespace BusinessRegister.Dal.Repositories
 -- Create date: {DateTime.Now:dd.MM.yyyy}
 -- Description:	Instead of trigger for DatabaseVersion so it can not have more than 1 row and do not allow Deletion for the value.
 -- =============================================
-CREATE TRIGGER [dbo].[BusinessRegister.DBVer_InsteadOfInsUpDel] 
+CREATE TRIGGER [dbo].{TableName.DatabaseVersion.Replace("]", "")}_InsteadOfInsUpDel] 
         ON [dbo].{TableName.DatabaseVersion} INSTEAD OF INSERT, UPDATE, DELETE AS 
 BEGIN
 	SET NOCOUNT ON;
@@ -124,6 +125,8 @@ END;";
 	                                            [Status] [varchar](20) NOT NULL,
 	                                            [FullAddress] [nvarchar] (1024) NOT NULL,
 	                                            [Url] [varchar] (200) NOT NULL,
+                                                [Added] [datetime] NOT NULL CONSTRAINT [DF_BusinessRegister.Company_Added] DEFAULT GETDATE(),
+                                                [Modified] [datetime] NULL,
 	                                            CONSTRAINT [IX_BusinessRegister.Company_BusinessCode] PRIMARY KEY CLUSTERED 
 	                                            (
 		                                            [BusinessCode] ASC
@@ -138,7 +141,39 @@ END;";
 	                                            )
                                             );";
                 await RepositorySqlHelper.ExcecuteNonQueryAsync(companyTableCration);
-                
+
+                var companyTableTrigger = $@"
+-- =============================================
+-- Author:		Rannes Pärn
+-- Create date: {DateTime.Now:dd.MM.yyyy}
+-- Description:	Update modified date when a row has been updated
+-- =============================================
+CREATE TRIGGER [dbo].{TableName.Company.Replace("]", "")}_Update] 
+    ON [dbo].{TableName.Company} AFTER UPDATE
+AS 
+BEGIN	
+	SET NOCOUNT ON;
+	IF EXISTS (SELECT 1 FROM inserted)
+	BEGIN
+	    SELECT * INTO #InsertedTemp FROM inserted;
+		SELECT * INTO #DeletedTemp FROM deleted;
+
+		ALTER TABLE #InsertedTemp DROP COLUMN Added, Modified;
+		ALTER TABLE #DeletedTemp DROP COLUMN Added, Modified;
+
+		UPDATE 
+			[dbo].{TableName.Company}
+		SET
+			Modified = GETDATE()
+		WHERE 
+			BusinessCode IN
+				(SELECT tt.BusinessCode FROM 
+					(SELECT * FROM #InsertedTemp EXCEPT SELECT * FROM #DeletedTemp) tt)
+	END;
+END;
+";
+                await RepositorySqlHelper.ExcecuteNonQueryAsync(companyTableTrigger);
+
                 var tableTypeCompany = $@"CREATE Type {TableType.Company} AS TABLE
                                             (
 	                                            [Name] [nvarchar](400) NOT NULL,

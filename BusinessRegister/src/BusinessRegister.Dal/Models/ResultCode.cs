@@ -43,6 +43,11 @@
         /// <summary>
         /// Zip file did not contain correct / expected file.
         /// </summary>
-        ZipFileDidNotContainCorrectFile
+        ZipFileDidNotContainCorrectFile,
+
+        /// <summary>
+        /// Companies list cannot be empty.
+        /// </summary>
+        CompaniesListIsEmpty
     }
 }

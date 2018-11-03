@@ -43,7 +43,7 @@ namespace BusinessRegister.Dal.Repositories
                             END
                             ELSE
                             BEGIN
-	                            SELECT -1
+	                            SELECT CAST(-1 as SMALLINT)
                             END;";
 
             return (short) await RepositorySqlHelper.ExcecuteNonScalarAsync(query);

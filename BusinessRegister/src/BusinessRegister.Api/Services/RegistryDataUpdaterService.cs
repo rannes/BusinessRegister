@@ -21,11 +21,12 @@ namespace BusinessRegister.Api.Services
     /// </summary>
     public class RegistryDataUpdaterService : BackgroundService
     {
+        private const string FileName = "ariregister_xml.zip";
+        private const string FileDownloadLocation = "http://avaandmed.rik.ee/andmed/ARIREGISTER/ariregister_xml.zip";
         private readonly ILogger<RegistryDataUpdaterService> _logger;
         private readonly TimeSpan _syncDelay = new TimeSpan(1, 0, 0); //1 Hour
         private readonly IDatabaseSetupRepository _databaseSetupRepository;
-        private const string FileName = "ariregister_xml.zip";
-        private const string FileDownloadLocation = "http://avaandmed.rik.ee/andmed/ARIREGISTER/ariregister_xml.zip";
+        private readonly ICompanyRepository _companyRepository;
 
         /// <inheritdoc />
         public RegistryDataUpdaterService(IOptions<ConnectionString> databaseConnectionStrings, 
@@ -33,6 +34,7 @@ namespace BusinessRegister.Api.Services
         {
             _logger = logger;
             _databaseSetupRepository = new DatabaseSetupRepository(databaseConnectionStrings?.Value, logger);
+            _companyRepository = new CompanyRepository(databaseConnectionStrings?.Value, logger);
         }
 
         /// <inheritdoc />
@@ -64,6 +66,9 @@ namespace BusinessRegister.Api.Services
 
                         var companiesData = XmlHelper.DeserializeXmlFromFile(extractedFileLocation);
                         _logger.LogInformation($"RegistryDataUpdateService - Deserialized companies count: {companiesData.Count.ToString()}");
+
+                        await _companyRepository.SetBulk(companiesData);
+                        _logger.LogInformation("RegistryDataUpdateService - All data has been inserted / updated");
                     }
                     else
                     {
@@ -83,7 +88,7 @@ namespace BusinessRegister.Api.Services
                         File.Delete(extractedFileLocation);
                 }
 
-                _logger.LogInformation($"RegistryDataUpdateService Ended. Sleeping for: {_syncDelay.Hours} Hours, {_syncDelay.Minutes} Minutes, {_syncDelay.Seconds}");
+                _logger.LogInformation($"RegistryDataUpdateService Ended. Sleeping for: {_syncDelay.Hours} Hours, {_syncDelay.Minutes} Minutes, {_syncDelay.Seconds} Seconds");
                 await Task.Delay(_syncDelay, stoppingToken);
             }
 
